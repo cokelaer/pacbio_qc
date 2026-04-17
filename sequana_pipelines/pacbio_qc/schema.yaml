@@ -12,6 +12,9 @@ mapping:
     "input_pattern":
         type: str
         required: False
+    "apptainers":
+        type: any
+        required: False
     "bam_to_fasta":
         type: map
         mapping:

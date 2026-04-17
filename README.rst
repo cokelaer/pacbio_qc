@@ -8,7 +8,11 @@
     :alt: JOSS (journal of open source software) DOI
 
 .. image:: https://github.com/sequana/pacbio_qc/actions/workflows/main.yml/badge.svg
-   :target: https://github.com/sequana/pacbio_qc/actions/workflows    
+   :target: https://github.com/sequana/pacbio_qc/actions/workflows
+
+.. image:: https://img.shields.io/badge/python-3.11%20%7C%203.12-blue.svg
+    :target: https://pypi.python.org/pypi/sequana_pacbio_qc
+    :alt: Python 3.11 | 3.12
 
 
 This is is the **pacbio_qc** pipeline from the `Sequana <https://sequana.readthedocs.org>`_ projet

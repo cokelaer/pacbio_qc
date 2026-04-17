@@ -1,53 +1,81 @@
-import easydev
 import os
-import tempfile
 import subprocess
 import sys
+import tempfile
 
+from click.testing import CliRunner
+
+from sequana_pipelines.pacbio_qc.main import main
 
 from . import test_dir
+
 sharedir = f"{test_dir}/data"
 
 
 def test_standalone_subprocess():
     directory = tempfile.TemporaryDirectory()
-    cmd = """sequana_pacbio_qc --input-directory {} 
-            --working-directory {} --force""".format(sharedir, directory.name)
-    subprocess.call(cmd.split())
+    cmd = [
+        "sequana_pacbio_qc",
+        "--input-directory", sharedir,
+        "--working-directory", directory.name,
+        "--force",
+    ]
+    subprocess.call(cmd)
 
 
 def test_standalone_script():
     directory = tempfile.TemporaryDirectory()
-    import sequana_pipelines.pacbio_qc.main as m
-    sys.argv = ["test", "--input-directory", sharedir, 
-            "--working-directory", directory.name, "--force"]
-    m.main()
+    runner = CliRunner()
+    results = runner.invoke(
+        main,
+        [
+            "--input-directory", sharedir,
+            "--working-directory", directory.name,
+            "--force",
+        ],
+    )
+    assert results.exit_code == 0
+
 
 def test_full1():
     with tempfile.TemporaryDirectory() as directory:
         wk = directory
-        cmd = "sequana_pacbio_qc --input-directory {} "
-        cmd += "--working-directory {}  --force "
-        cmd = cmd.format(sharedir, wk)
-        subprocess.call(cmd.split())
+        runner = CliRunner()
+        results = runner.invoke(
+            main,
+            [
+                "--input-directory", sharedir,
+                "--working-directory", wk,
+                "--force",
+            ],
+        )
+        assert results.exit_code == 0
 
-        stat = subprocess.call("sh pacbio_qc.sh".split(), cwd=wk)
-
+        stat = subprocess.call(["bash", "pacbio_qc.sh"], cwd=wk)
         assert os.path.exists(wk + "/multiqc/multiqc_report.html")
+
 
 def test_full2():
     with tempfile.TemporaryDirectory() as directory:
         wk = directory
-        database=(f"{sharedir}/toydb")
-        cmd = "sequana_pacbio_qc --input-directory {} "
-        cmd += "--working-directory {}  --force --do-kraken --kraken-databases {}"
-        cmd = cmd.format(sharedir, wk, database)
-        subprocess.call(cmd.split())
+        database = f"{sharedir}/toydb"
+        runner = CliRunner()
+        results = runner.invoke(
+            main,
+            [
+                "--input-directory", sharedir,
+                "--working-directory", wk,
+                "--force",
+                "--do-kraken",
+                "--kraken-databases", database,
+            ],
+        )
+        assert results.exit_code == 0
 
-        stat = subprocess.call("sh pacbio_qc.sh".split(), cwd=wk)
+        stat = subprocess.call(["bash", "pacbio_qc.sh"], cwd=wk)
         assert os.path.exists(wk + "/multiqc/multiqc_report.html")
 
-def test_version():
-    cmd = "sequana_pacbio_qc --version"
-    subprocess.call(cmd.split())
 
+def test_version():
+    cmd = ["sequana_pacbio_qc", "--version"]
+    subprocess.call(cmd)
