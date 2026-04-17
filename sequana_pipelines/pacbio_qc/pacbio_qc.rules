@@ -35,10 +35,22 @@ def func(filename):
     # So we will remove the first extension (e.g. .bam) including
     # possible compressed extension
     filename = filename.split("/")[-1]
+
+    # Remove .bam extension
     if filename.endswith(".bam"):
-        return filename.rsplit(".bam")[0]
+        filename = filename.rsplit(".bam")[0]
     else:
         raise IOError("Input files must end in .bam")
+
+    # Remove lima_output. prefix if present
+    if filename.startswith("lima_output."):
+        filename = filename.replace("lima_output.", "", 1)
+
+    # Remove .ccs suffix if present
+    if filename.endswith(".ccs"):
+        filename = filename.rsplit(".ccs")[0]
+
+    return filename
 
 
 # ================================================== The sequana pipeline manager
