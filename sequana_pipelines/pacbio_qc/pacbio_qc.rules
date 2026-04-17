@@ -226,19 +226,41 @@ rule html_report:
 
         # Add introduction section at the beginning
         intro_html = (
-            "<p>This report provides quality control metrics for sample <b>{}</b> from a PacBio long-read sequencing run. "
-            "The analysis includes:</p>"
+            "<h3>Sample Quality Report: <b>{}</b></h3>"
+            "<p>This report provides comprehensive quality control metrics for sample <b>{}</b> from a PacBio long-read sequencing run.</p>"
+
+            "<h4>Report Contents:</h4>"
             "<ul>"
-            "<li><b>Basic statistics</b> on read length distribution and quality metrics</li>"
-            "<li><b>Histograms</b> showing read length, GC content, and signal-to-noise ratio (SNR) distributions</li>"
-            "<li><b>Scatter plots</b> correlating GC content with read length</li>"
-        ).format(wildcards.sample)
+            "<li><b>Basic Statistics</b> - Summary metrics including total number of reads, bases, read length range, GC content, "
+            "and ZMW (Zero-Mode Waveguide) pass statistics</li>"
+
+            "<li><b>Read Length Distribution</b> - Histogram showing the distribution of read lengths. "
+            "PacBio typically produces reads ranging from a few hundred bases to 50+ kilobases, depending on the library preparation.</li>"
+
+            "<li><b>GC Content Analysis</b> - Histogram of GC content across reads. Useful for detecting contamination or sequencing biases. "
+            "Most organisms show a characteristic GC distribution.</li>"
+
+            "<li><b>ZMW Pass Distribution</b> - Shows how many times each ZMW was sequenced. Higher pass counts indicate more consensus data "
+            "per ZMW and can improve accuracy for CCS (Circular Consensus Sequencing) data.</li>"
+
+            "<li><b>Signal-to-Noise Ratio (SNR)</b> - Distribution of SNR values for each nucleotide (A, C, G, T). "
+            "Higher SNR indicates better signal quality and more reliable base calls.</li>"
+
+            "<li><b>GC vs Read Length Scatter Plot</b> - 2D density plot showing the relationship between read length and GC content. "
+            "Can reveal compositional biases or contaminating sequences.</li>"
+        ).format(wildcards.sample, wildcards.sample)
+
         if config['kraken']['do']:
-            intro_html += "<li><b>Taxonomic classification</b> results from Kraken analysis</li>"
-        intro_html += "</ul>"
+            intro_html += (
+                "<li><b>Taxonomic Classification</b> - Results from Kraken analysis showing the distribution of reads across organisms. "
+                "Useful for validating expected organisms and detecting contamination.</li>"
+            )
+
         intro_html += (
-            "<p>Use the links in the sidebar to navigate through different sections of this report. "
-            "For a comprehensive overview of all samples, refer to the main summary report.</p>"
+            "</ul>"
+            "<p><b>Navigation:</b> Use the links in the sidebar to jump to specific sections. "
+            "For a comprehensive overview comparing all samples, refer to the <a href=\"../summary.html\">main summary report</a>. "
+            "Additional analysis details are available in the <a href=\"../multiqc/multiqc_report.html\">MultiQC report</a>.</p>"
         )
 
         # Insert intro section at the beginning
@@ -412,33 +434,24 @@ onsuccess:
     js = datatable.create_javascript_function()
     htmltable = datatable.create_datatable()
 
-    # The summary table at the top
     from sequana_pipelines.pacbio_qc import version as vv
-    df_general = pd.DataFrame({
-        "samples": len(manager.samples),
-        "sequana_pacbio_qc_version": vv}, index=["summary"])
-
-    datatable = DataTable(df_general.T, 'general', index=True)
-    datatable.datatable.datatable_options = {'paging': 'false',
-                                            'bFilter': 'false',
-                                             'bInfo': 'false',
-                                              'header': 'false',
-                                             'bSort': 'true'}
-    js2 = datatable.create_javascript_function()
-    htmltable2 = datatable.create_datatable(style="width: 20%; float:left" )
-
-
     from sequana.modules_report.summary import SequanaReport
 
-    # Here the is main HTML page report
-    intro = "<h2> General information</h2>"
-    intro += """<div style="float:left; width:30%">{}</div>""".format(js2 + htmltable2)
-    intro += """<p>Here below you can find a summary table with basic statistics about your reads. Click on the links in the first column of the table to jump to dedicated summary for your sample. There you can find histograms, and Kraken plots if taxonomy was set on. The multiqc report (link below) is also useful to compare the different statistics. </p>"""
+    # Build main page introduction
+    intro = """
+    <h2>Sequana PacBio QC Pipeline</h2>
+    <p>Sequana PacBio QC is a bioinformatics pipeline designed to perform quality control analysis on PacBio long-read sequencing data (BAM files). It generates comprehensive statistics on read length, GC content, and quality metrics, and optionally performs taxonomic classification using Kraken. The pipeline produces per-sample HTML reports with interactive visualizations and a final summary report.</p>
 
-    # the main table
-    intro += """<div style="clear:both"></div>"""
-    intro += """<hr>Please look at the <b><a href="multiqc/multiqc_report.html">multiqc report</a></b> for more details about your run.<br>"""
-    intro += "<br><hr><div>Here is a summary for all the samples. The CSV button allows you to export the basic statistics.  {}</div>".format(js + htmltable)
+    <h3>Sample Summary</h3>
+    <p>Below you can find a summary table with basic statistics about your reads. Click on the sample name links in the first column to jump to a per-sample summary page containing histograms and quality metrics.</p>
+
+    <p>For additional analysis details, see the <b><a href="multiqc/multiqc_report.html">MultiQC report</a></b>.</p>
+
+    <h3>Summary for all samples</h3>
+    <p>The CSV button exports the basic statistics. Hover over column headers for additional information.</p>
+    """
+
+    intro += "<div>{}</div>".format(js + htmltable)
 
     data = {
         "name": manager.name,
