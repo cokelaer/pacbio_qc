@@ -32,7 +32,7 @@ def test_full1():
         cmd = cmd.format(sharedir, wk)
         subprocess.call(cmd.split())
 
-        stat = subprocess.call("sh pacbio_qc.sh".split(), cwd=wk)
+        stat = subprocess.call(["bash", "pacbio_qc.sh"], cwd=wk)
 
         assert os.path.exists(wk + "/multiqc/multiqc_report.html")
 
@@ -46,7 +46,7 @@ def test_full2():
         cmd = cmd.format(sharedir, wk, database)
         subprocess.call(cmd.split())
 
-        stat = subprocess.call("sh pacbio_qc.sh".split(), cwd=wk)
+        stat = subprocess.call(["bash", "pacbio_qc.sh"], cwd=wk)
         assert os.path.exists(wk + "/multiqc/multiqc_report.html")
 
 def test_version():
