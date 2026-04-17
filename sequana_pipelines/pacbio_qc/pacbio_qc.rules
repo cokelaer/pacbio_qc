@@ -267,7 +267,7 @@ rule sequana_taxonomy:
     shell:
         """
 
-        sequana_taxonomy --file1 {input} --output-directory {wildcards.sample} --thread {threads} --databases {params.databases}
+        sequana_taxonomy --input-file1 {input} --output-directory {wildcards.sample} --thread {threads} --databases {params.databases}
 
         """
 
@@ -446,9 +446,7 @@ onsuccess:
     shell("chmod -R g+w .")
 
 onerror:
-    from sequana_pipetools.errors import PipeError
-    p = PipeError("pacbio_qc")
-    p.status()
+    manager.onerror()
 
 
 
