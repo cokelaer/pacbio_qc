@@ -1,6 +1,7 @@
-import pkg_resources
+import importlib.metadata
+
 try:
-    version = pkg_resources.require("sequana_pacbio_qc")[0].version
-except:
-    version = ">=0.8.0"
+    version = importlib.metadata.version("sequana-pacbio-qc")
+except importlib.metadata.PackageNotFoundError:
+    version = "unknown"
 

@@ -12,6 +12,11 @@ mapping:
     "input_pattern":
         type: str
         required: False
+    "extra_prefixes_to_strip":
+        type: seq
+        sequence:
+            - type: str
+        required: False
     "bam_to_fasta":
         type: map
         mapping:
