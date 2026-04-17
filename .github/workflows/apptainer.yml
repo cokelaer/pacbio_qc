@@ -30,7 +30,7 @@ jobs:
 
     # Cache APT .deb packages
     - name: Cache APT archives
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /var/cache/apt/archives
         key: ${{ runner.os }}-apt-cache-v1
@@ -38,7 +38,7 @@ jobs:
     # Cache Apptainer installation
     - name: Cache Apptainer install
       id: cache-apptainer
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           /usr/bin/apptainer
@@ -58,7 +58,7 @@ jobs:
 
     # Cache Apptainer image cache (~/.apptainer/cache)
     - name: Cache Apptainer images
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.apptainer/cache
         key: ${{ runner.os }}-apptainer-images-v1
