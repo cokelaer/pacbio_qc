@@ -1,0 +1,14 @@
+name: sequana_pacbio_qc
+channels:
+- conda-forge
+- bioconda
+- defaults
+dependencies:
+- python>=3.10
+- kraken2
+- multiqc
+- graphviz
+- pulp>=2.8
+- pip:
+  - sequana
+  - sequana_pipetools
