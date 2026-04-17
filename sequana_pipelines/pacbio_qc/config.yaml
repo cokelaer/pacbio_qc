@@ -12,7 +12,7 @@ input_pattern: '*.bam'
 
 # if you have some samples starting with prefix to bed removed,
 # uncomment this line and fill the list ,
-# extra_prefixes_to_strip: ["lima_output"]
+extra_prefixes_to_strip: ["lima_output"]
 
 
 apptainers:
