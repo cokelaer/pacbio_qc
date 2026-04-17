@@ -204,8 +204,37 @@ rule html_report:
         m = Module(input[0])
         cfg.output_dir = buffer
 
+        # Pre-create output directories to avoid race condition in parallel execution
+        # when using --apptainer-prefix
+        for dirname in ["css", "images", "js"]:
+            os.makedirs(dirname, exist_ok=True)
+
         # This creates useless directories (css/images/js)
         m = Module(input[0])
+
+        # Add introduction section at the beginning
+        intro_html = (
+            "<p>This report provides quality control metrics for sample <b>{}</b> from a PacBio long-read sequencing run. "
+            "The analysis includes:</p>"
+            "<ul>"
+            "<li><b>Basic statistics</b> on read length distribution and quality metrics</li>"
+            "<li><b>Histograms</b> showing read length, GC content, and signal-to-noise ratio (SNR) distributions</li>"
+            "<li><b>Scatter plots</b> correlating GC content with read length</li>"
+        ).format(wildcards.sample)
+        if config['kraken']['do']:
+            intro_html += "<li><b>Taxonomic classification</b> results from Kraken analysis</li>"
+        intro_html += "</ul>"
+        intro_html += (
+            "<p>Use the links in the sidebar to navigate through different sections of this report. "
+            "For a comprehensive overview of all samples, refer to the main summary report.</p>"
+        )
+
+        # Insert intro section at the beginning
+        m.sections.insert(0, {
+            "name": "Overview",
+            "anchor": "overview",
+            "content": intro_html,
+        })
 
         # Here, we just re-run the KrakenModule to get the HTML content
         # We do not want to save it
