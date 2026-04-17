@@ -386,7 +386,7 @@ onsuccess:
     del df['sample']
     df = df.reset_index().rename({'index': 'sample'}, axis=1)
     for col in ['count', 'nb_reads', 'nb_bases', 'min', 'max']:
-        try: df[col] = [int(x) for x in df[col]]
+        try: df[col] = [int(float(x)) for x in df[col]]
         except: pass
     for col in ['mean', 'mean_GC', 'std', "mean_passes"]:
         try: df[col] = [round(float(x), 2) for x in df[col]]
@@ -428,29 +428,26 @@ onsuccess:
     htmltable2 = datatable.create_datatable(style="width: 20%; float:left" )
 
 
-    from sequana.modules_report.summary import SummaryModule2
-    data = {
-            "name": manager.name,
-            "rulegraph": ".sequana/rulegraph.svg",
-            "stats": "stats.txt",
-            "pipeline_version": vv
-
-         }
+    from sequana.modules_report.summary import SequanaReport
 
     # Here the is main HTML page report
-    contents = "<h2> General information</h2>"
-    contents += """<div style="float:left; width:30%">{}</div>""".format(js2 + htmltable2)
-    contents += """<p>Here below you can find a summary table with basic statistics about your reads. Click on the links in the first column of the table to jump to dedicated summary for your sample. There you can find histograms, and Kraken plots if taxonomy was set on. The multiac report (link below) is also usefil to compare the disfferent statistics. </p>"""
-
+    intro = "<h2> General information</h2>"
+    intro += """<div style="float:left; width:30%">{}</div>""".format(js2 + htmltable2)
+    intro += """<p>Here below you can find a summary table with basic statistics about your reads. Click on the links in the first column of the table to jump to dedicated summary for your sample. There you can find histograms, and Kraken plots if taxonomy was set on. The multiqc report (link below) is also useful to compare the different statistics. </p>"""
 
     # the main table
-    contents += """<div style="clear:both"></div>"""
-    contents += """<hr>Please look at the <b><a href="multiqc/multiqc_report.html">multiqc report</a></b> for more details about your run.<br>"""
-    #contents += """A file with <a href="md5.txt">md5sum</a> is also available for the input file."""
-    contents += "<br><hr><div>Here is a summary for all the samples. The CSV button allows you to export the basic statistics.  {}</div>".format(js + htmltable)
+    intro += """<div style="clear:both"></div>"""
+    intro += """<hr>Please look at the <b><a href="multiqc/multiqc_report.html">multiqc report</a></b> for more details about your run.<br>"""
+    intro += "<br><hr><div>Here is a summary for all the samples. The CSV button allows you to export the basic statistics.  {}</div>".format(js + htmltable)
 
+    data = {
+        "name": manager.name,
+        "rulegraph": ".sequana/rulegraph.svg",
+        "stats": "stats.txt",
+        "pipeline_version": vv
+    }
 
-    s = SummaryModule2(data, intro=contents)
+    s = SequanaReport(data, intro=intro)
 
 
     # finally, some cleanup
