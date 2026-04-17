@@ -21,7 +21,7 @@ def test_standalone_script():
     import sequana_pipelines.pacbio_qc.main as m
     sys.argv = ["test", "--input-directory", sharedir,
             "--working-directory", directory.name, "--force"]
-    m.main()
+    m.main(standalone_mode=False)
 
 def test_full1():
     with tempfile.TemporaryDirectory() as directory:
